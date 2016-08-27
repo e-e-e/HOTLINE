@@ -6,7 +6,7 @@
 var config 		= require('./config.json');
 
 var express = require('express');
-var hotline = require('./router/hotline.js');
+var hotline = require('./routes/hotline.js');
 
 
 // libraries need for serving content
