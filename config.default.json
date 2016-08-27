@@ -1,0 +1,10 @@
+{
+	"server": {
+		"port": 8080,
+		"session_secret":"a cookie secret"
+	},
+	"twilio": {
+		"account_sid": "your twilio sid",
+		"auth_token": "your twilio auth token"
+	}
+}
