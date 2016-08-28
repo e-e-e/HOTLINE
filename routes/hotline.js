@@ -43,6 +43,8 @@ router.get('/hotline/record_or_listen',function(req, res, next) {
 router.get('/hotline/record',function(req, res, next) {
 	var resp = new twilio.TwimlResponse();
 	
+	resp.say("Welcome to the hotline.", say_settings);
+
 	resp.say("Leave a message, press the hash key to end.", say_settings);
 	
 	resp.record({ 
