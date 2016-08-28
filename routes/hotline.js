@@ -19,11 +19,6 @@ var say_settings = { voice: 'alice', language:'en-AU'};
 
 var router = express.Router();
 
-var middleware = function () { // return array of used middleware
-	return [cookieParser(),
-			];
-};
-
 //export router and middleware
 exports = module.exports = {
 	router: router
