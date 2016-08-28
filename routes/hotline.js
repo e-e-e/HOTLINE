@@ -182,7 +182,7 @@ router.use('/hotline/',function(req, res, next) {
   res.end(resp.toString());
 });
 
-function shuffle(array) {
+function shuffle (array) {
 	var cur_index = array.length, temp_val, rand_index ;
 	// While there remain elements to shuffle...
 	while (0 !== cur_index) {
