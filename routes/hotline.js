@@ -188,9 +188,7 @@ function shuffle (array) {
 	while (0 !== cur_index) {
 		// Pick a remaining element...
 		rand_index = Math.floor(Math.random() * cur_index);
-		
 		cur_index -= 1;
-
 		// And swap it with the current element.
 		temp_val = array[cur_index];
 		array[cur_index] = array[rand_index];
