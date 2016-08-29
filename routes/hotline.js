@@ -69,7 +69,7 @@ router.get('/hotline/listen', (req, res) => {
 				resp.redirect('/hotline/', {method:"GET"});
 			} else {
 				recordings.forEach( recording => 
-					resp.play(recording.uri)
+					resp.play(recording_uri(recording))
 							.redirect('/hotline/listen', {method:"GET"})
 				);
 			}
@@ -150,7 +150,7 @@ router.use('/hotline/', (req, res) => {
 	client.recordings.list()
 		.then( data => choose_random(data.recordings))
 		.then( recording => {
-			if(recording)	resp.play(recording.uri);
+			if(recording)	resp.play(recording_uri(recording));
 			//"https://api.twilio.com/2010-04-01/Accounts/" + recording.accountSid + "/Recordings/" + recording.sid);
 		})
 		.catch( err => console.log(err))
@@ -178,6 +178,10 @@ function send_response_fn(res,resp) {
 		res.writeHead(200, {'Content-Type': 'text/xml'});
 		res.end(resp.toString());
 	};
+}
+
+function recording_uri (recording) {
+	return "https://api.twilio.com/2010-04-01/Accounts/" + recording.accountSid + "/Recordings/" + recording.sid;
 }
 
 function choose_random (array) {
