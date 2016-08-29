@@ -1,5 +1,6 @@
-/* jshint node:true, strict:false */
-/* globals require, exports:true, module */
+/* jshint esnext:true, globalstrict:true */
+/* globals require, exports:true, module, console */
+
 "use strict";
 
 // for router
@@ -32,7 +33,7 @@ router.use(session({
 );
 
 //set up routers
-router.get('/hotline/record_or_listen',function(req, res, next) {
+router.get('/hotline/record_or_listen', (req, res) => {
 	if (req.query.Digits == '1') 
 		res.redirect('/hotline/record');
 	else
@@ -40,13 +41,9 @@ router.get('/hotline/record_or_listen',function(req, res, next) {
 });
 
 //record a message
-router.get('/hotline/record',function(req, res, next) {
+router.get('/hotline/record', (req, res) => {
 	var resp = new twilio.TwimlResponse();
-	
-	resp.say("Welcome to the hotline.", say_settings);
-
 	resp.say("Leave a message, press the hash key to end.", say_settings);
-	
 	resp.record({ 
 		action: "/hotline/finished_recording",
 		finishOnKey:'#',
@@ -54,133 +51,142 @@ router.get('/hotline/record',function(req, res, next) {
 		playBeep:true,
 		method:'GET'
 	});
-
 	//NO RECORDING
 	resp.say('No recording recieved', say_settings);
 	resp.redirect('/hotline/listen');
-	res.writeHead(200, {'Content-Type': 'text/xml'});
-	res.end(resp.toString());
+	send_response(res,resp);
 });
 
 // listen to the recordings
-router.get('/hotline/listen', function(req,res,next) {
+router.get('/hotline/listen', (req, res) => {
 	//get all recordings - then reorder and play them all.
-	client.recordings.list(function(err, data) {
-		if(err) {
-			//do something
-		}
-		var resp = new twilio.TwimlResponse();
-		var recordings = shuffle(data.recordings);
-		if(recordings.length === 0) {
-			resp.say('no messages, be the first to leave a message',say_settings);
-			resp.redirect('/hotline/', {method:"GET"});
-		} else {
-			recordings.forEach(function(recording) {
-				resp.play("https://api.twilio.com/2010-04-01/Accounts/" + recording.accountSid + "/Recordings/" + recording.sid);
-				resp.redirect('/hotline/listen', {method:"GET"});
-			});
-		}
-		res.writeHead(200, {'Content-Type': 'text/xml'});
-		res.end(resp.toString());
-	});
-	
+	let resp = new twilio.TwimlResponse();
+	client.recordings.list()
+		.then(data => shuffle(data.recordings))
+		.then(recordings => {
+			if(recordings.length === 0) {
+				resp.say('no messages, be the first to leave a message',say_settings);
+				resp.redirect('/hotline/', {method:"GET"});
+			} else {
+				recordings.forEach( recording => 
+					resp.play(recording.uri)
+							.redirect('/hotline/listen', {method:"GET"})
+				);
+			}
+		})
+		.then( send_response_fn(res,resp) );
 });
 
 //recording is done
-router.get('/hotline/finished_recording',function(req, res, next) {
+router.get('/hotline/finished_recording', (req, res) => {
 	//playback message
-
 	req.session.recording = req.query.RecordingSid;
-	
-	var resp = new twilio.TwimlResponse();	
+	let resp = new twilio.TwimlResponse();
 	resp.gather({
 		action: '/hotline/save/'+req.query.RecordingSid,
 		method:'GET',
 		numDigits:1,
 		timeout:1
-	}, function() {
-		this.say('press 1 to save',say_settings);
-		this.say('or any other key to rerecord',say_settings);
-		this.play(req.query.RecordingUrl);
+	}, node => {
+		node.say('press 1 to save',say_settings);
+		node.say('or any other key to rerecord',say_settings);
+		node.play(req.query.RecordingUrl);
 		console.log('\n\nRECORDERING URL = '+ req.query.RecordingUrl + '\n\n');
 	});
 	//if hung up call goes through this again.
 	resp.redirect('/hotline/finished_recording?RecordingSid='+req.query.RecordingSid +
 								'&RecordingUrl='+req.query.RecordingUrl, { method : "GET" });
-	
-	res.writeHead(200, {'Content-Type': 'text/xml'});
-	res.end(resp.toString());
+	send_response(res,resp);
 });
 
-router.get('/hotline/save/:RecordingSid', function(req,res) {
-	
+router.get('/hotline/save/:RecordingSid', (req, res) => {
 	if (req.query.Digits=='1') {
 		//save
 		//do not delete message on hang up
 		req.session.recording = null;
-		var resp = new twilio.TwimlResponse();
-		resp.say('message saved.',say_settings);
-		resp.say('stay on the line to keep listening',say_settings);
+		let resp = new twilio.TwimlResponse();
+		resp.say('message saved.', say_settings);
+		resp.say('stay on the line to keep listening', say_settings);
 		resp.redirect('/hotline/listen', {method: 'GET'});
-		res.writeHead(200, {'Content-Type': 'text/xml'});
-		res.end(resp.toString());
+		send_response(res,resp);
 	} else {
 		//delete message
 		//rerecord
 		req.session.recording = null;
-		client.recordings(req.params.RecordingSid).delete(function(err, data) {
-			if(err) {
-				console.log(err);
-				throw err;
-			}
-			console.log("\n\nSid "+req.params.RecordingSid+" deleted successfully.\n\n");
-			res.redirect('/hotline/record');
-		});
+		client.recordings(req.params.RecordingSid)
+			.delete()
+			.then(data => {
+				console.log("\n\nSid "+req.params.RecordingSid+" deleted successfully.\n\n");
+				res.redirect('/hotline/record');
+			});
 	} 
-	
 });
 
-router.get('/hotline/delete/:RecordingSid',function(req,res) {
+router.get('/hotline/delete/:RecordingSid', (req, res) => {
 	//req.session.recording = null;
-	console.log("\n\nDELETING RECORDING "+ req.params.RecordingSid + '\n\n');
-	client.recordings(req.params.RecordingSid).delete(function(err, data) {
-		if (err) {
-			throw err.message;
-		} else {
-			var resp = new twilio.TwimlResponse();
-			resp.say('message deleted. goodbye.',say_settings);
-			res.writeHead(200, {'Content-Type': 'text/xml'});
-			res.end(resp.toString());
-		}
-	});
+	//console.log("\n\nDELETING RECORDING "+ req.params.RecordingSid + '\n\n');
+	let resp = new twilio.TwimlResponse();
+	client.recordings(req.params.RecordingSid)
+		.delete()
+		.then(data => resp.say('message deleted. goodbye.', say_settings) )
+		.finally( send_response_fn(res,resp) );
 });
 
 
-router.use('/hotline/hangup', function(req, res, next) {
+router.use('/hotline/hangup', (req, res) => {
 	if(req.session.recording) {
 		res.redirect('/hotline/delete/'+req.session.recording);
 	} else {
 		var resp = new twilio.TwimlResponse();
 		resp.say('all is good. goodbye',say_settings);
-		res.writeHead(200, {'Content-Type': 'text/xml'});
-		res.end(resp.toString());
+		send_response(res,resp);
 	}
 });
 
-router.use('/hotline/',function(req, res, next) {
+router.use('/hotline/', (req, res) => {
 	var resp = new twilio.TwimlResponse();
-	resp.gather({
-        action: '/hotline/record_or_listen',
-        method: 'GET',
-        numDigits:1
-    }, function() {
-        this.say('Press 1 to leave a message', say_settings)
-            .say('or any other key to keep listening.', say_settings);
-    });
-	resp.redirect('/hotline/listen',{ method:'GET' });
-	res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(resp.toString());
+	resp.say("Welcome to the hotline.", say_settings);
+	// play a message first
+	client.recordings.list()
+		.then( data => choose_random(data.recordings))
+		.then( recording => {
+			if(recording)	resp.play(recording.uri);
+			//"https://api.twilio.com/2010-04-01/Accounts/" + recording.accountSid + "/Recordings/" + recording.sid);
+		})
+		.catch( err => console.log(err))
+		.then( () => {
+			resp.gather({
+				action: '/hotline/record_or_listen',
+				method: 'GET',
+				numDigits:1
+			}, node => 
+				node.say('Press 1 to leave a message', say_settings)
+						.say('or any other key to keep listening.', say_settings)
+			);
+			resp.redirect('/hotline/listen',{ method:'GET' });
+		})
+		.finally( send_response_fn(res,resp) );
 });
+
+function send_response(res,resp) {
+	res.writeHead(200, {'Content-Type': 'text/xml'});
+	res.end(resp.toString());
+}
+
+function send_response_fn(res,resp) {
+	return () => {
+		res.writeHead(200, {'Content-Type': 'text/xml'});
+		res.end(resp.toString());
+	};
+}
+
+function choose_random (array) {
+	if(Array.isArray(array) && array.length > 0 ) {
+		return array[ Math.floor( Math.random() * array.length ) ];
+	} else {
+		return null;
+	}
+}
 
 function shuffle (array) {
 	var cur_index = array.length, temp_val, rand_index ;
