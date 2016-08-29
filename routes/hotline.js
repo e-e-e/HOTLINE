@@ -68,10 +68,8 @@ router.get('/hotline/listen', (req, res) => {
 				resp.say('no messages, be the first to leave a message',say_settings);
 				resp.redirect('/hotline/', {method:"GET"});
 			} else {
-				recordings.forEach( recording => 
-					resp.play(recording_uri(recording))
-							.redirect('/hotline/listen', {method:"GET"})
-				);
+				recordings.forEach( recording => resp.play(recording_uri(recording)) );
+				resp.redirect('/hotline/listen', {method:"GET"});
 			}
 		})
 		.then( send_response_fn(res,resp) );
