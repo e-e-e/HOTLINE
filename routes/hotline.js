@@ -49,12 +49,23 @@ router.get('/hotline/record', (req, res) => {
 		finishOnKey:'#',
 		maxLength:120,
 		playBeep:true,
+		transcribeCallback: "/hotline/transcribed",
 		method:'GET'
 	});
 	//NO RECORDING
 	resp.say('No recording recieved', say_settings);
 	resp.redirect('/hotline/listen');
 	send_response(res,resp);
+});
+
+router.get('/hotline/transcribed', (req,res) => {
+	var resp = new twilio.TwimlResponse();
+	if(req.query.transcriptionStatus === 'completed') {
+		//we are good to send to twitter
+		console.log(req.query.TranscriptionText);
+	} else {
+		send_response(res,resp);
+	}
 });
 
 // listen to the recordings
