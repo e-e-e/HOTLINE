@@ -160,7 +160,7 @@ router.use('/hotline/', (req, res) => {
 	client.recordings.list()
 		.then( data => choose_random(data.recordings))
 		.then( recording => {
-			if(recording)	resp.play(recording_uri(recording));
+			//if(recording)	resp.play(recording_uri(recording));
 			//"https://api.twilio.com/2010-04-01/Accounts/" + recording.accountSid + "/Recordings/" + recording.sid);
 		})
 		.catch( err => console.log(err))
