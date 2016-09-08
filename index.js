@@ -14,11 +14,16 @@ var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var helmet = require('helmet');
+var bodyparser = require('body-parser');
 
 var app = express();
 
 app.use(helmet());
 app.use(helmet.noCache());
+
+app.use( bodyparser.json() );
+app.use( bodyparser.urlencoded({ extended: true }));
+
 app.use(express.static(path.join(__dirname,'/public')));
 app.use(hotline.router);
 
