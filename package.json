@@ -16,6 +16,7 @@
     "express-session": "~1.11.3",
     "helmet": "^2.1.2",
     "q": "~1.4.1",
-    "twilio": "~2.3.0"
+    "twilio": "~2.3.0",
+    "twitter": "^1.4.0"
   }
 }

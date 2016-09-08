@@ -9,8 +9,10 @@ var config			= require('../config.json');
 
 var express = require('express');
 var twilio 	= require('twilio');
-
 var client 	= twilio(config.twilio.account_sid, config.twilio.auth_token);
+
+var send_tweet = require('../lib/tweet.js').send_tweet;
+
 
 // for middleware
 var cookieParser 	= require('cookie-parser');
@@ -59,14 +61,12 @@ router.get('/hotline/record', (req, res) => {
 });
 
 router.post('/hotline/transcribed', (req,res) => {
-	var resp = new twilio.TwimlResponse();
 	console.log(req.body);
-	if(req.body.transcriptionStatus === 'completed') {
-		//we are good to send to twitter
-		console.log(req.body.TranscriptionText);
-	} else {
-		send_response(res,resp);
+	if(req.body.TranscriptionStatus === 'completed') {
+		send_tweet(req.body.TranscriptionText)
+			.catch( err=>console.log(err) );
 	}
+	res.status(200).send();
 });
 
 // listen to the recordings
