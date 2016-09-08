@@ -60,11 +60,10 @@ router.get('/hotline/record', (req, res) => {
 
 router.post('/hotline/transcribed', (req,res) => {
 	var resp = new twilio.TwimlResponse();
-	console.log(req.query);
-	console.log(req.body);
-	if(req.query.transcriptionStatus === 'completed') {
+	console.log(req.params);
+	if(req.params.transcriptionStatus === 'completed') {
 		//we are good to send to twitter
-		console.log(req.query.TranscriptionText);
+		console.log(req.params.TranscriptionText);
 	} else {
 		send_response(res,resp);
 	}
