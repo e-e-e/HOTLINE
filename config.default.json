@@ -6,5 +6,11 @@
 	"twilio": {
 		"account_sid": "your twilio sid",
 		"auth_token": "your twilio auth token"
+	},
+	"twitter": {
+		"consumer_key": "yours",
+		"consumer_secret": "yours",
+		"access_token_key": "yours",
+		"access_token_secret": "yours"
 	}
 }
