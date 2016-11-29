@@ -4,8 +4,9 @@
 
 Follow the HOTLINE on twitter - https://twitter.com/__HOTLINE__ 
 
-Dear _____, 
+## Some words
 
+Dear _____, 
 
 I have been working on a new old fashioned 80's or 90's HOTLINE for _______. At the moment it's a really simple system that allows anyone to either leave a message or listen to the previously recorded messages (these are randomly spliced into a seamless loop).
 
@@ -26,5 +27,5 @@ A few pragmatic things to note:
 I think that’s it. But just to re-iterate - it would be great to have you involved.
 
 
-<3
+<3  
 Benjamin
