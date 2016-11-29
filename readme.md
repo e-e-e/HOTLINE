@@ -2,6 +2,8 @@
 
 ![HOTLINE](hotline.gif)
 
+Follow the HOTLINE on twitter - https://twitter.com/__HOTLINE__ 
+
 Dear _____, 
 
 
@@ -14,7 +16,7 @@ Would you be interested in contributing something? I am not wanting to dictate w
 A few pragmatic things to note: 
 
 - call this number ( 02 85 990 669 ) and follow the prompts.
-- The recordings a limited to 2 minutes in length. ( This is a software limitation because I am auto transcribing all the messages. The transcripts may be presented as a torrent of flowing info on the website, but I am not sure yet. Leaving options open. )
+- The recordings are limited to 2 minutes in length. ( This is a software limitation because I am auto transcribing all the messages. The transcripts may be presented as a torrent of flowing info on the website, but I am not sure yet. Leaving options open. )
 - Silence at the start and end of messages is automatically clipped.
 - There is no limit on how many recordings you can make - but they may not be played back consecutively.
 - if you hang up without saving the message, it will be automatically discarded.
